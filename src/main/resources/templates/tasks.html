@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Tasks | Задачи</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../static/stylesheets.css">
+</head>
+<body>
+
+<div class="container">
+    <div class="sidebar">
+        <a href="tasks"><div class="menu-item-1" data-page="page1">Задачи</div></a>
+        <a href="users"><div class="menu-item" data-page="page2">Пользователи</div></a>
+        <a href="protocols"><div class="menu-item" data-page="page3">Протоколы</div></a>
+        <a href="portfolios"><div class="menu-item" data-page="page4">Портфели</div></a>
+        <a href="projects"><div class="menu-item" data-page="page5">Проекты</div></a>
+
+        <hr>
+
+        <div class="filter-form">
+            <form action="" method="get">
+                <label class="filter-label-1" for="status">Статус</label>
+                <select class="filter-label-1-s" id="status" name="status">
+                    <option value="all">Все</option>
+                    <option value="OPEN">Открыт</option>
+                    <option value="CLOSE">Закрыт</option>
+                </select>
+                <br>
+
+                <label class="filter-label-1" for="priority">Приоритет</label>
+                <select class="filter-label-1-s" id="priority" name="priority">
+                    <option value="all">Все</option>
+                    <option value="LOW">Низкий</option>
+                    <option value="MEDIUM">Средний</option>
+                    <option value="HIGH">Высокий</option>
+                </select>
+                <br>
+
+                <label class="filter-label-2" for="responsible">Ответственный</label>
+                <select class="filter-label-2-s" id="responsible" name="responsible">
+                    <option value="all">Все</option>
+                </select>
+                <br>
+
+                <label class="filter-label-3" for="protocol">Протокол</label>
+                <select class="filter-label-3-s" id="protocol" name="protocol" multiple>
+                    <option value="all">Все</option>
+                </select>
+                <br>
+
+                <label class="filter-label-4" for="portfolio">Портфель</label>
+                <select class="filter-label-4-s" id="portfolio" name="portfolio">
+                    <option value="all">Все</option>
+                </select>
+                <br>
+
+                <label class="filter-label-5" for="project">Проект</label>
+                <select class="filter-label-5-s" id="project" name="project">
+                    <option value="all">Все</option>
+                </select>
+                <br>
+
+                <button class="filter-btn">
+                    Применить фильтры
+                </button>
+
+                <button class="download-file">
+                    <svg id="download-file-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-download" viewBox="0 0 16 16">
+                      <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5"/>
+                      <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708z"/>
+                    </svg>Скачать отчет
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div class="content">
+    </div>
+</div>
+
+
+<!-- Модальное окно -->
+<div id="createTaskModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <span class="close">&times;</span>
+            <h2 style="font-family: 'Roboto Mono', monospace;">Задача</h2>
+        </div>
+        <div class="modal-body">
+            <form id="taskForm">
+                <div class="form-group">
+                    <label for="task-name" style="font-family: 'Roboto Mono', monospace;">Название задачи</label>
+                    <input type="text" id="task-name" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="task-desc" style="font-family: 'Roboto Mono', monospace;">Описание</label>
+                    <textarea id="task-desc" name="description" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="task-start-date" style="font-family: 'Roboto Mono', monospace;">Дата начала</label>
+                    <input type="date" id="task-start-date" name="taskStartDate" required>
+                </div>
+                <div class="form-group">
+                    <label for="task-deadline" style="font-family: 'Roboto Mono', monospace;">Дата сдачи</label>
+                    <input type="date" id="task-deadline" name="taskDeadline" required>
+                </div>
+                <div class="form-group">
+                    <label for="task-priority" style="font-family: 'Roboto Mono', monospace;">Приоритет</label>
+                    <select id="task-priority" name="priority" required>
+                        <option value="LOW">Низкий</option>
+                        <option value="MEDIUM">Средний</option>
+                        <option value="HIGH">Высокий</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="task-status" style="font-family: 'Roboto Mono', monospace;">Статус</label>
+                    <select id="task-status" name="status" required>
+                        <option value="OPEN">Открыт</option>
+                        <option value="CLOSE">Закрыт</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="task-responsible" style="font-family: 'Roboto Mono', monospace;">Ответственный</label>
+                    <select id="task-responsible" name="responsibleIds" multiple required>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="task-protocol" style="font-family: 'Roboto Mono', monospace;">Протокол</label>
+                    <select id="task-protocol" name="protocolIds" multiple required>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="task-portfolio" style="font-family: 'Roboto Mono', monospace;">Портфель</label>
+                    <select id="task-portfolio" name="portfolioId" required>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="task-project" style="font-family: 'Roboto Mono', monospace;">Проект</label>
+                    <select id="task-project" name="projectId" required>
+                    </select>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button type="button" id="submit-task" style="font-family: 'Roboto Mono', monospace;">Сохранить</button>
+        </div>
+    </div>
+</div>
+
+<a href="javascript:void(0);">
+    <button class="rounded-button" data-action="create-task" id="create-task-btn">Cоздать задачу</button>
+</a>
+
+
+<script>
+    // Получаем элементы
+    var modal = document.getElementById("createTaskModal");
+    var btn = document.getElementById("create-task-btn");
+    var span = document.getElementsByClassName("close")[0];
+    var submitBtn = document.getElementById("submit-task");
+
+    // Открыть модальное окно при клике на кнопку
+    btn.onclick = function() {
+        modal.style.display = "block";
+    }
+
+    // Закрыть модальное окно при клике на крестик
+    span.onclick = function() {
+        modal.style.display = "none";
+    }
+
+    // Закрыть модальное окно при клике вне его
+    window.onclick = function(event) {
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    }
+
+    submitBtn.onclick = function() {
+        alert("Задача создана!");
+        modal.style.display = "none";
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const apiUrl = '/api/v1/tasks/filter';
+        const accessToken = getCookie('accessToken');
+
+        // Helper function to set headers with access token
+        function getHeaders() {
+            return {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${accessToken}`
+            };
+        }
+
+        // Fetch filter options and update the selects
+        async function loadFilterOptions() {
+            try {
+                // Assuming endpoints for filter options are defined
+                const [projects, portfolios, protocols, users] = await Promise.all([
+                    fetch('/api/v1/projects', { headers: getHeaders() }).then(res => res.json()),
+                    fetch('/api/v1/portfolios', { headers: getHeaders() }).then(res => res.json()),
+                    fetch('/api/v1/protocols', { headers: getHeaders() }).then(res => res.json()),
+                    fetch('/api/v1/tasks/users', { headers: getHeaders() }).then(res => res.json())
+                ]);
+
+                // Populate selects
+                populateSelect('#project', projects);
+                populateSelect('#portfolio', portfolios);
+                populateSelect('#protocol', protocols);
+                populateSelect('#responsible', users);
+
+                populateSelect('#task-project', projects);
+                populateSelect('#task-portfolio', portfolios);
+                populateSelect('#task-protocol', protocols);
+                populateSelect('#task-responsible', users);
+            } catch (error) {
+                console.error('Error loading filter options:', error);
+            }
+        }
+
+        function populateSelect(selector, items) {
+            const select = document.querySelector(selector);
+            items.forEach(item => {
+                const option = document.createElement('option');
+                option.value = item.id;
+                option.textContent = item.fullName || item.name; // Adjust based on item structure
+                select.appendChild(option);
+            });
+        }
+
+        // Load tasks based on filters
+        async function loadTasks(filters = {}) {
+            try {
+                const params = new URLSearchParams(filters).toString();
+                const response = await fetch(`${apiUrl}?${params}`, { headers: getHeaders() });
+                const tasks = await response.json();
+
+                displayTasks(tasks);
+            } catch (error) {
+                console.error('Error loading tasks:', error);
+            }
+        }
+
+        function displayTasks(tasks) {
+            const content = document.querySelector('.content');
+            content.innerHTML = ''; // Clear existing tasks
+
+            const priorityMapping = {
+                HIGH: 'Высокий',
+                MEDIUM: 'Средний',
+                LOW: 'Низкий',
+            };
+
+            const statusMapping = {
+                OPEN: 'Открыт',
+                CLOSE: 'Закрыт',
+            };
+
+            tasks.forEach(task => {
+                const taskElement = document.createElement('div');
+                taskElement.className = 'user';
+                taskElement.innerHTML = `
+                <ul class="user-ul">
+                    <li class="user-li-1"><b>Заголовок: </b>${task.name}</li>
+                    <li class="user-li-2"><b>Описание: </b>${task.description}</li>
+                    <li class="user-li-3"><b>Дата начала: </b>${task.startDate}</li>
+                    <li class="user-li-4"><b>Дата конца: </b>${task.dueDate}</li>
+                    <li class="user-li-4"><b>Приоритет: </b>${priorityMapping[task.priority] || task.priority}</li>
+                    <li class="user-li-4"><b>Статус: </b>${statusMapping[task.status] || task.status}</li>
+                    <li class="user-li-4"><b>Ответственный: </b>${task.responsible.map(user => user.fullName).join(', ')}</li>
+                    <li class="user-li-4">
+                        <button class="edit-task" data-task-id="${editTask(task.id)}">Редактировать</button>
+                        <button class="delete-task" data-task-id="${deleteTask(task.id)}">Удалить</button>
+                    </li>
+                </ul>
+            `;
+                content.appendChild(taskElement);
+            });
+        }
+
+        /*
+        data class TaskRequest(
+    val name: String,
+    val description: String,
+    val status: Status,
+    val priority: Priority,
+    val startDate: LocalDate,
+    val dueDate: LocalDate,
+    val portfolioId: Long,
+    val projectId: Long,
+    val protocolIds: List<Long>,
+    val responsibleIds: List<Long>
+)
+         */
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0'); // Месяцы от 0 до 11, поэтому добавляем 1
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        // Create a task
+        async function createTask() {
+
+            // const formData = new FormData(document.getElementById('taskForm'));
+            // const data = Object.fromEntries(formData.entries());
+            // data.startDate = formatDate(data.taskStartDate);
+            // data.dueDate = formatDate(data.taskDeadline);
+
+            const formData = new FormData(document.getElementById('taskForm'));
+            const data = {};
+
+            // Обработка всех пар ключ-значение из FormData
+            formData.forEach((value, key) => {
+                // Проверяем, есть ли уже такой ключ
+                if (data[key]) {
+                    // Если есть, превращаем его в массив и добавляем новое значение
+                    if (!Array.isArray(data[key])) {
+                        data[key] = [data[key]];
+                    }
+                    data[key].push(value);
+                } else {
+                    data[key] = value;
+                }
+            });
+
+            function getMultipleSelectValues(selectId) {
+                const select = document.getElementById(selectId);
+                const values = Array.from(select.selectedOptions).map(option => option.value);
+                return values;
+            }
+
+            data.responsibleIds = getMultipleSelectValues('task-responsible');
+            data.protocolIds = getMultipleSelectValues('task-protocol');
+            data.startDate = formatDate(data.taskStartDate);
+            data.dueDate = formatDate(data.taskDeadline);
+
+            try {
+                const response = await fetch('/api/v1/tasks', {
+                    method: 'POST',
+                    headers: getHeaders(),
+                    body: JSON.stringify(data)
+                });
+
+                if (response.ok) {
+                    alert('Задача создана!');
+                    document.getElementById('createTaskModal').style.display = 'none';
+                    await loadTasks(); // Reload tasks
+                } else {
+                    alert('Ошибка создания задачи');
+                }
+            } catch (error) {
+                console.error('Error creating task:', error);
+            }
+        }
+
+        document.querySelector('.filter-btn').addEventListener('click', function(event) {
+            event.preventDefault(); // Предотвращает перезагрузку страницы
+
+            const filters = getFilters();
+            loadTasks(filters);
+        });
+
+        function getFilters() {
+            const filters = {};
+            const status = document.getElementById('status').value;
+            const priority = document.getElementById('priority').value;
+            const responsible = document.getElementById('responsible').value;
+            const protocol = document.getElementById('protocol');
+            const portfolio = document.getElementById('portfolio').value;
+            const project = document.getElementById('project').value;
+
+            if (status !== 'all') filters.status = status;
+            if (priority !== 'all') filters.priority = priority;
+            if (responsible !== 'all') filters.userId = responsible;
+            if (portfolio !== 'all') filters.portfolioId = portfolio;
+            if (project !== 'all') filters.projectId = project;
+
+            if (protocol) {
+                const selectedOptions = Array.from(protocol.selectedOptions);
+                const s = selectedOptions.map(option => option.value).join(',');
+                if (s.length > 0) filters.protocolId = s;
+            }
+
+            return filters;
+        }
+
+        // Download filtered tasks report
+        document.querySelector('.download-file').addEventListener('click', async function (event) {
+            event.preventDefault(); // Предотвращает перезагрузку страницы
+            const filters = getFilters();
+
+            const params = new URLSearchParams(filters).toString();
+            try {
+                // Выполните запрос с токеном
+                const response = await fetch(`/api/v1/tasks/export/filter?${params}`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${getCookie('accessToken')}`,
+                        'Content-Type': 'application/json',
+                    },
+                });
+
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+
+                // Получите имя файла из заголовков ответа, если это необходимо
+                const disposition = response.headers.get('Content-Disposition');
+                const filename = disposition
+                    ? disposition.split('filename=')[1].replace(/"/g, '')
+                    : 'downloaded-file';
+
+                // Получите данные файла
+                const blob = await response.blob();
+
+                // Создайте временную ссылку и инициируйте скачивание
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+
+                // Очистите временный URL и ссылку
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+            } catch (error) {
+                console.error('Error downloading the file:', error);
+            }
+        });
+
+        // Bind create task button
+        document.getElementById('submit-task').onclick = createTask;
+
+        // Load filter options on page load
+        loadFilterOptions();
+        getTaskssss();
+
+        function getTaskssss(){
+            const filters = getFilters();
+            loadTasks(filters);
+        }
+
+        // Close modal functionality
+        document.querySelector('.modal .close').onclick = function() {
+            document.getElementById('createTaskModal').style.display = 'none';
+        }
+    });
+
+    function getCookie(name) {
+        const cookies = document.cookie.split('; ');
+        for (const cookie of cookies) {
+            const [cookieName, cookieValue] = cookie.split('=');
+            if (cookieName === name) {
+                return cookieValue;
+            }
+        }
+        return null;
+    }
+</script>
+
+</body>
+</html>

@@ -2,41 +2,27 @@ package ru.mai.tasks.utils
 
 import org.apache.poi.xwpf.usermodel.ParagraphAlignment
 import org.apache.poi.xwpf.usermodel.XWPFDocument
+import org.apache.poi.xwpf.usermodel.XWPFParagraph
+import org.apache.poi.xwpf.usermodel.XWPFRun
 import ru.mai.tasks.models.entity.tasks.Priority
 import ru.mai.tasks.models.entity.tasks.Status
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.time.LocalDate
 
-class WordUtils(private val title: String, private val margin: Int, private val spacing: Double) {
-    private val document: XWPFDocument = XWPFDocument()
+class WordUtils {
+    private var document: XWPFDocument? = null
 
-    init {
-        val margins = document.document.body.addNewSectPr().addNewPgMar()
-        margins.left = (margin * 20).toBigInteger()
-        margins.right = (margin * 20).toBigInteger()
-        margins.top = (margin * 20).toBigInteger()
-        margins.bottom = (margin * 20).toBigInteger()
+    // Создание нового документа
+    fun createNewDocument() {
+        document = XWPFDocument()
     }
 
-    fun setText(
-        alignment: ParagraphAlignment,
-        color: String,
-        fontFamily: String,
-        isBold: Boolean,
-        fontSize: Int,
-        text: String
-    ) {
-        val paragraph = document.createParagraph()
-        paragraph.alignment = alignment
-        paragraph.spacingBetween = spacing
-
-        val run = paragraph.createRun()
+    // Добавление текста в документ
+    fun setText(text: String) {
+        val paragraph: XWPFParagraph = document!!.createParagraph()
+        val run: XWPFRun = paragraph.createRun()
         run.setText(text)
-        run.fontFamily = fontFamily
-        run.isBold = isBold
-        run.fontSize = fontSize
-        run.setColor(color)
     }
 
     fun addTask(
@@ -48,29 +34,39 @@ class WordUtils(private val title: String, private val margin: Int, private val 
         status: Status,
         responsibles: List<String> = emptyList()
     ) {
-        setText(ParagraphAlignment.LEFT, "000000", "Arial", true, 12, "Задача: $taskName")
-        setText(ParagraphAlignment.LEFT, "000000", "Arial", false, 12, "Описание: $description")
-        setText(ParagraphAlignment.LEFT, "000000", "Arial", false, 12, "Дата начала: $startDate")
-        setText(ParagraphAlignment.LEFT, "000000", "Arial", false, 12, "Дата окончания: $dueDate")
-        setText(ParagraphAlignment.LEFT, "000000", "Arial", false, 12, "Приоритет: ${priority.value}")
-        setText(ParagraphAlignment.LEFT, "000000", "Arial", false, 12, "Статус: ${status.name}")
+        setText("Задача: $taskName")
+        setText("Описание: $description")
+        setText("Дата начала: $startDate")
+        setText("Дата окончания: $dueDate")
+        setText("Приоритет: ${priority.value}")
+        setText("Статус: ${status.name}")
         if (responsibles.isNotEmpty()) {
-            setText(ParagraphAlignment.LEFT, "000000", "Arial", false, 12, "Ответственные: ${responsibles.joinToString(", ")}")
+            setText("Ответственные: ${responsibles.joinToString(", ")}")
         }
-        setText(ParagraphAlignment.LEFT, "000000", "Arial", false, 12, "")
+        setText("")
     }
 
+    // Сохранение документа
     fun getDocument(filePath: String) {
         FileOutputStream(filePath).use { outputStream ->
-            document.write(outputStream)
+            document!!.write(outputStream)
         }
     }
-    fun readDocument(filePath: String) {
-        FileInputStream(filePath).use { inputStream ->
-            val doc = XWPFDocument(inputStream)
-            for (para in doc.paragraphs) {
-                println(para.text)
-            }
+
+    // Чтение документа
+    fun readDocument(filePath: String): String {
+        val inputStream = FileInputStream(filePath)
+        document = XWPFDocument(inputStream)
+        val paragraphs = document!!.paragraphs
+        val textBuilder = StringBuilder()
+        for (paragraph in paragraphs) {
+            textBuilder.append(paragraph.text).append("\n")
         }
+        return textBuilder.toString()
+    }
+
+    // Закрытие документа
+    fun closeDocument() {
+        document?.close()
     }
 }

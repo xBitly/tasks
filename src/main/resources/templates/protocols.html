@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tasks | Протоколы</title>
+    <link rel="stylesheet" href="../static/stylesheets.css">
+</head>
+<body>
+
+<a href="javascript:void(0);">
+    <button class="rounded-button" data-action="create-protocol" id="create-task-btn">
+        Cоздать протокол
+    </button>
+</a>
+
+<div class="container">
+    <div class="sidebar">
+        <a href="tasks"><div class="menu-item" data-page="page1">Задачи</div></a>
+        <a href="users"><div class="menu-item" data-page="page2">Пользователи</div></a>
+        <a href="protocols"><div class="menu-item-1" data-page="page3">Протоколы</div></a>
+        <a href="portfolios"><div class="menu-item" data-page="page4">Портфели</div></a>
+        <a href="projects"><div class="menu-item" data-page="page5">Проекты</div></a>
+    </div>
+
+    <div class="content" id="content">
+
+    </div>
+</div>
+
+
+<!-- Модальное окно -->
+<div id="createTaskModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <span class="close">&times;</span>
+            <h2 style="font-family: 'Roboto Mono', monospace;">Создать протокол</h2>
+        </div>
+        <div class="modal-body">
+            <form id="taskForm">
+                <div class="form-group">
+                    <label for="task-name" style="font-family: 'Roboto Mono', monospace;">Название протокола</label>
+                    <input type="text" id="task-name" name="taskName" required>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button type="button" id="submit-task" style="font-family: 'Roboto Mono', monospace;">Создать</button>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    function getCookie(name) {
+        const cookies = document.cookie.split('; ');
+        for (const cookie of cookies) {
+            const [cookieName, cookieValue] = cookie.split('=');
+            if (cookieName === name) {
+                return cookieValue;
+            }
+        }
+        return null;
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+        // Get references to elements
+        var modal = document.getElementById("createTaskModal");
+        var btn = document.getElementById("create-task-btn");
+        var span = document.getElementsByClassName("close")[0];
+        var submitBtn = document.getElementById("submit-task");
+
+        // Open modal on button click
+        btn.onclick = function() {
+            modal.style.display = "block";
+        }
+
+        // Close modal on close button click
+        span.onclick = function() {
+            modal.style.display = "none";
+        }
+
+        // Close modal on click outside
+        window.onclick = function(event) {
+            if (event.target === modal) {
+                modal.style.display = "none";
+            }
+        }
+
+        // Fetch and display protocols
+        const fetchProtocols = async () => {
+            const response = await fetch('/api/v1/protocols', {
+                headers: {
+                    'Authorization': 'Bearer ' + getCookie('accessToken')
+                }
+            });
+            const protocols = await response.json();
+            const protocolList = document.getElementById('content');
+            protocolList.innerHTML = '';
+            protocols.forEach(protocol => {
+                const protocolItem = document.createElement('div');
+                protocolItem.classList.add('user');
+                protocolItem.innerHTML = `
+                    <ul class="user-ul">
+                        <li class="user-li-1"><b>Название: </b>${protocol.name}</li>
+                    </ul>
+                `;
+                protocolList.appendChild(protocolItem);
+            });
+        };
+
+        // Handle form submission
+        submitBtn.onclick = async function() {
+            const taskName = document.getElementById('task-name').value;
+            const response = await fetch('/api/v1/protocols', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + getCookie('accessToken')
+                },
+                body: JSON.stringify({ name: taskName, taskIds: [] })
+            });
+            if (response.ok) {
+                alert("Протокол создан!");
+                modal.style.display = "none";
+                await fetchProtocols(); // Refresh the list of protocols
+            } else {
+                alert("Ошибка при создании протокола.");
+            }
+        };
+
+        // Initial fetch of protocols
+        fetchProtocols();
+    });
+</script>
+
+</body>
+</html>

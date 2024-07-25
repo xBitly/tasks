@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tasks | Пользователи</title>
+    <link rel="stylesheet" href="../static/stylesheets.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,100..700;1,100..700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div class="container">
+    <div class="sidebar">
+        <a href="tasks"><div class="menu-item" data-page="page1">Задачи</div></a>
+        <a href="users"><div class="menu-item-1" data-page="page2">Пользователи</div></a>
+        <a href="protocols"><div class="menu-item" data-page="page3">Протоколы</div></a>
+        <a href="portfolios"><div class="menu-item" data-page="page4">Портфели</div></a>
+        <a href="projects"><div class="menu-item" data-page="page5">Проекты</div></a>
+    </div>
+
+    <div class="content">
+        <div class="user">
+            <ul class="user-ul">
+                <li class="user-li-1"><b>ФИО: </b>Иванов Иван Иванович</li>
+                <li class="user-li-2"><b>Почта: </b>ivanov@gmail.com</li>
+                <li class="user-li-3"><b>Телефон: </b>+7 910 007 1234</li>
+                <li class="user-li-4"><b>Роль: </b>Backend developer</li>
+            </ul>
+        </div>
+
+        <div class="user">
+            <ul class="user-ul">
+                <li class="user-li-1"><b>ФИО: </b>Андреев Андрей Дмитриевич</li>
+                <li class="user-li-2"><b>Почта: </b>andrdm@gmail.com</li>
+                <li class="user-li-3"><b>Телефон: </b>+7 916 361 0773</li>
+                <li class="user-li-4"><b>Роль: </b>Tech lead</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно -->
+<div id="createTaskModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <span class="close">&times;</span>
+            <h2 style="font-family: 'Roboto Mono', monospace;">Создать пользователя</h2>
+        </div>
+        <div class="modal-body">
+            <form id="taskForm">
+                <div class="form-group">
+                    <label for="task-name" style="font-family: 'Roboto Mono', monospace;">ФИО</label>
+                    <input type="text" id="task-name" name="taskName" required>
+                </div>
+                <div class="form-group">
+                    <label for="task-name" style="font-family: 'Roboto Mono', monospace;">Почта</label>
+                    <input type="text" id="task-name" name="taskMain" required>
+                </div>
+                <div class="form-group">
+                    <label for="task-name" style="font-family: 'Roboto Mono', monospace;">Телефон</label>
+                    <input type="text" id="task-name" name="taskPhone" required>
+                </div>
+                <div class="form-group">
+                    <label for="task-name" style="font-family: 'Roboto Mono', monospace;">Роль</label>
+                    <input type="text" id="task-name" name="taskRole" required>
+                </div>
+            </form>
+        </div>
+
+        <div class="modal-footer">
+            <button type="button" id="submit-task" style="font-family: 'Roboto Mono', monospace;">Создать</button>
+        </div>
+        
+    </div>
+</div>
+
+<a href="javascript:void(0);">
+    <button class="rounded-button" data-action="create-user" id="create-task-btn">Cоздать пользователя</button>
+</a>
+
+
+<script>
+    // Получаем элементы
+    var modal = document.getElementById("createTaskModal");
+    var btn = document.getElementById("create-task-btn");
+    var span = document.getElementsByClassName("close")[0];
+    var submitBtn = document.getElementById("submit-task");
+
+    // Открыть модальное окно при клике на кнопку
+    btn.onclick = function() {
+        modal.style.display = "block";
+    }
+
+    // Закрыть модальное окно при клике на крестик
+    span.onclick = function() {
+        modal.style.display = "none";
+    }
+
+    // Закрыть модальное окно при клике вне его
+    window.onclick = function(event) {
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    }
+
+    // Обработка формы
+    submitBtn.onclick = function() {
+        alert("Пользователь создан!");
+        modal.style.display = "none";
+    }
+
+</script>
+
+</body>
+</html>

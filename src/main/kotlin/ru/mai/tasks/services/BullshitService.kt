@@ -1,6 +1,5 @@
 package ru.mai.tasks.services
 
-import org.apache.poi.xwpf.usermodel.ParagraphAlignment
 import org.springframework.data.jpa.domain.Specification
 import org.springframework.stereotype.Service
 import ru.mai.tasks.models.dto.PortfolioRequest
@@ -12,7 +11,6 @@ import ru.mai.tasks.models.entity.user.User
 import ru.mai.tasks.repository.*
 import ru.mai.tasks.utils.WordUtils
 import ru.mai.tasks.utils.exception.NotFoundException
-
 
 /*
     Вот все это нужно разделить каждый класс на отдельный файл
@@ -115,7 +113,6 @@ class UserService(
     }
 }
 
-
 @Service
 class TaskService(
     private val taskRepository: TaskRepository,
@@ -207,76 +204,33 @@ class TaskService(
     }
 
     fun filterTasks(status: Status?, priority: Priority?, portfolioId: Long?, projectId: Long?, protocolId: Long?, userId: Long?): List<Task> {
-        val spec = Specification.where(
-            TaskSpecification.hasStatus(status)
-                ?.and(TaskSpecification.hasPriority(priority))
-                ?.and(TaskSpecification.belongsToPortfolio(portfolioId))
-                ?.and(TaskSpecification.belongsToProject(projectId))
-                ?.and(TaskSpecification.belongsToProtocol(protocolId))
-                ?.and(TaskSpecification.hasResponsible(userId))
-        )
+        val spec = Specification.where(null as Specification<Task>?)
+            .and(TaskSpecification.hasStatus(status))
+            .and(TaskSpecification.hasPriority(priority))
+            .and(TaskSpecification.belongsToPortfolio(portfolioId))
+            .and(TaskSpecification.belongsToProject(projectId))
+            .and(TaskSpecification.belongsToProtocol(protocolId))
+            .and(TaskSpecification.hasResponsible(userId))
+
         return taskRepository.findAll(spec)
     }
-}
 
-@Service
-class ReportService(
-    private val userRepository: UserRepository,
-    private val projectRepository: ProjectRepository,
-    private val portfolioRepository: PortfolioRepository,
-    private val protocolRepository: ProtocolRepository,
-    private val taskRepository: TaskRepository
-) {
-    fun generateUserReport(userId: Long, filePath: String) {
-        val user = userRepository.findById(userId).orElseThrow { NotFoundException("User not found") }
-        val tasks = user.tasks
-        val wordUtils = WordUtils("Отчет по пользователю", 20, 1.5)
-        wordUtils.setText(ParagraphAlignment.CENTER, "000000", "Arial", true, 16, "Отчет по пользователю: ${user.fullName}")
+    fun generateReport(status: Status?, priority: Priority?, portfolioId: Long?, projectId: Long?, protocolId: Long?, userId: Long?, filePath: String) {
+        val spec = Specification.where(null as Specification<Task>?)
+            .and(TaskSpecification.hasStatus(status))
+            .and(TaskSpecification.hasPriority(priority))
+            .and(TaskSpecification.belongsToPortfolio(portfolioId))
+            .and(TaskSpecification.belongsToProject(projectId))
+            .and(TaskSpecification.belongsToProtocol(protocolId))
+            .and(TaskSpecification.hasResponsible(userId))
 
-        tasks.forEach {
-            wordUtils.addTask(it.name, it.description, it.startDate, it.dueDate, it.priority, it.status)
-        }
+        val tasks = taskRepository.findAll(spec)
 
-        wordUtils.getDocument(filePath)
-    }
-
-    fun generateProjectReport(projectId: Long, filePath: String) {
-        val project = projectRepository.findById(projectId).orElseThrow { NotFoundException("Project not found") }
-        val tasks = project.tasks
-        val wordUtils = WordUtils("Отчет по проекту", 20, 1.5)
-        wordUtils.setText(ParagraphAlignment.CENTER, "000000", "Arial", true, 16, "Отчет по проекту: ${project.name}")
+        val wordUtils = WordUtils()
+        wordUtils.createNewDocument()
 
         tasks.forEach {
-            val responsibles = it.responsibles.map { user -> user.fullName }
-            wordUtils.addTask(it.name, it.description, it.startDate, it.dueDate, it.priority, it.status, responsibles)
-        }
-
-        wordUtils.getDocument(filePath)
-    }
-
-    fun generatePortfolioReport(portfolioId: Long, filePath: String) {
-        val portfolio = portfolioRepository.findById(portfolioId).orElseThrow { NotFoundException("Portfolio not found") }
-        val tasks = portfolio.tasks
-        val wordUtils = WordUtils("Отчет по портфелю", 20, 1.5)
-        wordUtils.setText(ParagraphAlignment.CENTER, "000000", "Arial", true, 16, "Отчет по портфелю: ${portfolio.name}")
-
-        tasks.forEach {
-            val responsibles = it.responsibles.map { user -> user.fullName }
-            wordUtils.addTask(it.name, it.description, it.startDate, it.dueDate, it.priority, it.status, responsibles)
-        }
-
-        wordUtils.getDocument(filePath)
-    }
-
-    fun generateProtocolReport(protocolId: Long, filePath: String) {
-        val protocol = protocolRepository.findById(protocolId).orElseThrow { NotFoundException("Protocol not found") }
-        val tasks = protocol.tasks
-        val wordUtils = WordUtils("Отчет по протоколу", 20, 1.5)
-        wordUtils.setText(ParagraphAlignment.CENTER, "000000", "Arial", true, 16, "Отчет по протоколу: ${protocol.name}")
-
-        tasks.forEach {
-            val responsibles = it.responsibles.map { user -> user.fullName }
-            wordUtils.addTask(it.name, it.description, it.startDate, it.dueDate, it.priority, it.status, responsibles)
+            wordUtils.addTask(it.name, it.description, it.startDate, it.dueDate, it.priority, it.status, it.responsibles.map { it.fullName })
         }
 
         wordUtils.getDocument(filePath)

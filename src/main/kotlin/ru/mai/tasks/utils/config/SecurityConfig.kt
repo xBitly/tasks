@@ -17,7 +17,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 class SecurityConfig(
     @Autowired private val tokenFilter: TokenFilter
 ) {
-    val permittedRoutes = arrayOf("", "/*", "/links/*", "/.well-known/*", "/static/**", "/images/**", "/js/**", "/css/**", "/api/v1/health*", "/api/v1/auth/signup", "/api/v1/auth/signin", "/api/v1/auth/refresh")
+    val permittedRoutes = arrayOf("", "/*", "/**", "/links/*", "/.well-known/*", "/static/**", "/images/**", "/js/**", "/css/**", "/api/v1/health*", "/api/v1/auth/signin", "/api/v1/auth/refresh")
 
     @Bean
     fun filterChain(http: HttpSecurity): SecurityFilterChain {

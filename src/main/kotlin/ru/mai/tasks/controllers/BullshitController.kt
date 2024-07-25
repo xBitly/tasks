@@ -1,19 +1,24 @@
 package ru.mai.tasks.controllers
 
+import jakarta.servlet.http.HttpServletRequest
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.core.io.ByteArrayResource
 import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.core.Authentication
+import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.*
 import ru.mai.tasks.models.dto.*
 import ru.mai.tasks.models.entity.tasks.Priority
 import ru.mai.tasks.models.entity.tasks.Status
 import ru.mai.tasks.services.*
 import java.io.File
+import java.util.UUID
 
 @RestController
-@RequestMapping("/api/portfolios")
+@RequestMapping("/api/v1/portfolios")
 @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('USER')")
 class PortfolioController(private val portfolioService: PortfolioService) {
     @PostMapping
@@ -46,7 +51,7 @@ class PortfolioController(private val portfolioService: PortfolioService) {
 }
 
 @RestController
-@RequestMapping("/api/projects")
+@RequestMapping("/api/v1/projects")
 @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('USER')")
 class ProjectController(private val projectService: ProjectService) {
     @PostMapping
@@ -79,30 +84,30 @@ class ProjectController(private val projectService: ProjectService) {
 }
 
 @RestController
-@RequestMapping("/api/protocols")
+@RequestMapping("/api/v1/protocols")
 @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('USER')")
 class ProtocolController(private val protocolService: ProtocolService) {
     @PostMapping
     fun createProtocol(@RequestBody request: ProtocolRequest, auth: Authentication): ProtocolResponse {
         val protocol = protocolService.createProtocol(request)
-        return ProtocolResponse(protocol.id, protocol.name, protocol.tasks.map { it.toTaskResponse() })
+        return ProtocolResponse(protocol.id, protocol.name)
     }
 
     @GetMapping("/{id}")
     fun getProtocol(@PathVariable id: Long, auth: Authentication): ProtocolResponse {
         val protocol = protocolService.getProtocol(id)
-        return ProtocolResponse(protocol.id, protocol.name, protocol.tasks.map { it.toTaskResponse() })
+        return ProtocolResponse(protocol.id, protocol.name)
     }
 
     @GetMapping
     fun getAllProtocols(auth: Authentication): List<ProtocolResponse> {
-        return protocolService.getAllProtocols().map { ProtocolResponse(it.id, it.name, it.tasks.map { it.toTaskResponse() }) }
+        return protocolService.getAllProtocols().map { ProtocolResponse(it.id, it.name) }
     }
 
     @PutMapping("/{id}")
     fun updateProtocol(@PathVariable id: Long, @RequestBody request: ProtocolRequest, auth: Authentication): ProtocolResponse {
         val protocol = protocolService.updateProtocol(id, request)
-        return ProtocolResponse(protocol.id, protocol.name, protocol.tasks.map { it.toTaskResponse() })
+        return ProtocolResponse(protocol.id, protocol.name)
     }
 
     @DeleteMapping("/{id}")
@@ -112,9 +117,14 @@ class ProtocolController(private val protocolService: ProtocolService) {
 }
 
 @RestController
-@RequestMapping("/api/tasks")
+@RequestMapping("/api/v1/tasks")
 @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('USER')")
-class TaskController(private val taskService: TaskService) {
+class TaskController(private val taskService: TaskService, private val userService: UserService) {
+
+    @GetMapping("/users")
+    fun getUsers(auth: Authentication): List<UserResponse> {
+        return userService.getAllUsers().map { it.toUserResponse() }
+    }
 
     @PostMapping
     fun createTask(@RequestBody request: TaskRequest, auth: Authentication): TaskResponse {
@@ -246,44 +256,19 @@ class TaskController(private val taskService: TaskService) {
                 )
             }
     }
-}
 
-@RestController
-@RequestMapping("/api/reports")
-@PreAuthorize("hasAuthority('ADMIN') or hasAuthority('USER')")
-class ReportController(private val reportService: ReportService) {
-
-    @GetMapping("/user/{userId}")
-    fun generateUserReport(@PathVariable userId: Long, auth: Authentication): ResponseEntity<ByteArrayResource> {
-        val filePath = "user_report_$userId.docx"
-        reportService.generateUserReport(userId, filePath)
-        return ResponseEntity.ok()
-            .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"$filePath\"")
-            .body(ByteArrayResource(File(filePath).readBytes()))
-    }
-
-    @GetMapping("/project/{projectId}")
-    fun generateProjectReport(@PathVariable projectId: Long, auth: Authentication): ResponseEntity<ByteArrayResource> {
-        val filePath = "project_report_$projectId.docx"
-        reportService.generateProjectReport(projectId, filePath)
-        return ResponseEntity.ok()
-            .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"$filePath\"")
-            .body(ByteArrayResource(File(filePath).readBytes()))
-    }
-
-    @GetMapping("/portfolio/{portfolioId}")
-    fun generatePortfolioReport(@PathVariable portfolioId: Long, auth: Authentication): ResponseEntity<ByteArrayResource> {
-        val filePath = "portfolio_report_$portfolioId.docx"
-        reportService.generatePortfolioReport(portfolioId, filePath)
-        return ResponseEntity.ok()
-            .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"$filePath\"")
-            .body(ByteArrayResource(File(filePath).readBytes()))
-    }
-
-    @GetMapping("/protocol/{protocolId}")
-    fun generateProtocolReport(@PathVariable protocolId: Long, auth: Authentication): ResponseEntity<ByteArrayResource> {
-        val filePath = "protocol_report_$protocolId.docx"
-        reportService.generateProtocolReport(protocolId, filePath)
+    @GetMapping("/export/filter")
+    fun filterTasksReport(
+        @RequestParam(required = false) status: Status?,
+        @RequestParam(required = false) priority: Priority?,
+        @RequestParam(required = false) portfolioId: Long?,
+        @RequestParam(required = false) projectId: Long?,
+        @RequestParam(required = false) protocolId: List<Long>?,
+        @RequestParam(required = false) userId: Long?,
+        auth: Authentication
+    ): ResponseEntity<ByteArrayResource> {
+        val filePath = "user_report_${UUID.randomUUID()}.docx"
+        taskService.generateReport(status, priority, portfolioId, projectId, protocolId?.first(), userId, filePath)
         return ResponseEntity.ok()
             .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"$filePath\"")
             .body(ByteArrayResource(File(filePath).readBytes()))

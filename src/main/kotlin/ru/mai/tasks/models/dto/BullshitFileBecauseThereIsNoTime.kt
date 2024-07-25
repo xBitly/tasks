@@ -37,7 +37,6 @@ data class ProtocolRequest(
 data class ProtocolResponse(
     val id: Long,
     val name: String,
-    val tasks: List<TaskResponse>
 )
 
 data class ProtocolShortResponse(
@@ -102,7 +101,6 @@ fun Protocol.toProtocolResponse(): ProtocolResponse {
     return ProtocolResponse(
         id = this.id,
         name = this.name,
-        tasks = this.tasks.map { it.toTaskResponse() } // Преобразование списка задач в TaskResponse
     )
 }
 
